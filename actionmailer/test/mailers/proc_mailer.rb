@@ -4,7 +4,8 @@ class ProcMailer < ActionMailer::Base
   default to: "system@test.lindsaar.net",
           "X-Proc-Method" => Proc.new { Time.now.to_i.to_s },
           subject: Proc.new { give_a_greeting },
-          "x-has-to-proc" => :symbol
+          "x-has-to-proc" => :symbol,
+          "X-Lambda-Arity-0" => ->() { "0" }
 
   def welcome
     mail

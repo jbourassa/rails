@@ -726,6 +726,10 @@ class BaseTest < ActiveSupport::TestCase
     assert(ProcMailer.welcome["x-has-to-proc"].to_s == "symbol")
   end
 
+  test "proc default values with fixed arity of 0 can be called" do
+    assert_equal("0", ProcMailer.welcome["X-Lambda-Arity-0"].to_s)
+  end
+
   test "we can call other defined methods on the class as needed" do
     mail = ProcMailer.welcome
     assert_equal("Thanks for signing up this afternoon", mail.subject)
