@@ -8,6 +8,7 @@ require "active_support/time"
 
 require "mailers/base_mailer"
 require "mailers/proc_mailer"
+require "mailers/proc_mailer_deprecated"
 require "mailers/asset_mailer"
 
 class BaseTest < ActiveSupport::TestCase
@@ -724,6 +725,14 @@ class BaseTest < ActiveSupport::TestCase
 
   test "default values which have to_proc (e.g. symbols) should not be considered procs" do
     assert(ProcMailer.welcome["x-has-to-proc"].to_s == "symbol")
+  end
+
+  test "proc default values can have arity of 1 but are deprecated" do
+    assert_deprecated do
+      mail = ProcMailerDeprecated.welcome
+      assert_equal(["complex@computed.com"], mail.to)
+      assert_equal(["complex@computed.com"], mail.cc)
+    end
   end
 
   test "proc default values with fixed arity of 0 can be called" do

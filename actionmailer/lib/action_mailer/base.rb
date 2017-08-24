@@ -5,6 +5,7 @@ require_relative "collector"
 require "active_support/core_ext/string/inflections"
 require "active_support/core_ext/hash/except"
 require "active_support/core_ext/module/anonymous"
+require "active_support/deprecation"
 
 require_relative "log_subscriber"
 require_relative "rescuable"
@@ -889,7 +890,7 @@ module ActionMailer
         default_values = self.class.default.map do |key, value|
           [
             key,
-            value.is_a?(Proc) ? instance_exec(&value) : value
+            compute_default(value)
           ]
         end.to_h
 
@@ -897,6 +898,21 @@ module ActionMailer
         headers_with_defaults[:subject] ||= default_i18n_subject
         headers_with_defaults
       end
+
+      def compute_default(value)
+        return value unless value.is_a?(Proc)
+
+        if value.arity == 1
+          ActiveSupport::Deprecation.warn(<<-MSG.squish)
+            Procs passed in to ActionMailer::Base.default should not receive
+            any arguments, use `self` instead.
+          MSG
+          instance_exec(self, &value)
+        else
+          instance_exec(&value)
+        end
+      end
+
 
       def assign_headers_to_message(message, headers)
         assignable = headers.except(:parts_order, :content_type, :body, :template_name,
